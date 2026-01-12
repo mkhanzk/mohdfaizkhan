@@ -240,3 +240,29 @@ nav a:hover {
 .project-content {
     padding: 20px;
 }
+.resume-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, #2563eb, #1e40af);
+  border-radius: 10px;
+  text-decoration: none;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.35);
+  transition: all 0.3s ease;
+}
+
+.resume-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(37, 99, 235, 0.45);
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+}
+
+.resume-btn:active {
+  transform: translateY(0);
+}
+
+
