@@ -25,10 +25,12 @@
 
   // ---------- Theme ----------
   const themeToggle = document.getElementById('themeToggle');
+  const SUN_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>';
+  const MOON_ICON = '<svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
   function applyTheme(theme) {
     if (theme) {
       document.documentElement.setAttribute('data-theme', theme);
-      themeToggle.textContent = theme === 'dark' ? '☀️' : '🌙';
+      themeToggle.innerHTML = theme === 'dark' ? SUN_ICON : MOON_ICON;
     }
   }
   const savedTheme = localStorage.getItem(THEME_KEY);
@@ -40,6 +42,25 @@
     applyTheme(next);
     localStorage.setItem(THEME_KEY, next);
   });
+
+  // ---------- Scroll reveal ----------
+  const revealTargets = document.querySelectorAll(
+    '.section > .container > *, .timeline-item, .cert-card, .skill-group'
+  );
+  revealTargets.forEach(el => el.classList.add('reveal'));
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('in-view');
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    revealTargets.forEach(el => revealObserver.observe(el));
+  } else {
+    revealTargets.forEach(el => el.classList.add('in-view'));
+  }
 
   // ---------- Mobile nav ----------
   const navToggle = document.getElementById('navToggle');
