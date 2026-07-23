@@ -1,0 +1,90 @@
+[
+  {
+    "id": "seed-1",
+    "title": "Academic KPI Dashboard (Power BI)",
+    "description": "Built an interactive Power BI dashboard on top of SQL Server and Canvas Data to track enrollment, course completion, and engagement KPIs for university leadership. Replaced manual weekly reports with a live, drill-down dashboard.",
+    "difficulty": "Hard",
+    "tools": ["Power BI", "SQL"],
+    "businessCategory": "Education",
+    "link": "",
+    "tags": ["Dashboard", "KPI Reporting", "Automation"],
+    "date": "2024-09-01"
+  },
+  {
+    "id": "seed-2",
+    "title": "Automated Institutional Reporting via REST APIs",
+    "description": "Automated recurring institutional reports by pulling data from Canvas Data and REST APIs into SQL Server, cutting manual reporting effort significantly and improving data freshness for stakeholders.",
+    "difficulty": "Hard",
+    "tools": ["SQL", "Python"],
+    "businessCategory": "IT",
+    "link": "",
+    "tags": ["Automation", "ETL", "APIs"],
+    "date": "2024-11-15"
+  },
+  {
+    "id": "seed-3",
+    "title": "Learner Engagement Analysis",
+    "description": "Analyzed digital learning platform data to identify drop-off points in learner engagement, using SQL for extraction and Excel for pivot-based trend analysis, resulting in process recommendations for operations teams.",
+    "difficulty": "Medium",
+    "tools": ["Excel", "SQL"],
+    "businessCategory": "Education",
+    "link": "",
+    "tags": ["Data Cleaning", "Trend Analysis"],
+    "date": "2022-08-10"
+  },
+  {
+    "id": "seed-4",
+    "title": "E-commerce Sales & Customer Segmentation Dashboard",
+    "description": "Sample project: Built a Tableau dashboard analyzing online store sales, customer segments (RFM analysis), and product performance to highlight growth opportunities and underperforming SKUs.",
+    "difficulty": "Medium",
+    "tools": ["Tableau", "SQL"],
+    "businessCategory": "E-commerce",
+    "link": "",
+    "tags": ["RFM", "Segmentation", "Sample Project"],
+    "date": "2025-02-01"
+  },
+  {
+    "id": "seed-5",
+    "title": "IT Helpdesk Ticket Analysis",
+    "description": "Sample project: Analyzed IT support ticket data in Python (pandas) to find resolution-time bottlenecks by category and priority, then visualized findings in Power BI for the support team lead.",
+    "difficulty": "Medium",
+    "tools": ["Python", "Power BI"],
+    "businessCategory": "IT",
+    "link": "",
+    "tags": ["Pandas", "Support Analytics", "Sample Project"],
+    "date": "2025-03-12"
+  },
+  {
+    "id": "seed-6",
+    "title": "Retail Inventory & Demand Trends",
+    "description": "Sample project: Used Excel and SQL to model reorder points and identify slow-moving inventory across store locations, reducing stockout risk on top sellers.",
+    "difficulty": "Easy",
+    "tools": ["Excel", "SQL"],
+    "businessCategory": "Retail",
+    "link": "",
+    "tags": ["Inventory", "Forecasting", "Sample Project"],
+    "date": "2025-01-05"
+  },
+  {
+    "id": "seed-7",
+    "title": "Personal Finance Tracker & Budget Insights",
+    "description": "Sample project: Built a simple Excel-based personal finance tracker with pivot tables and charts to visualize monthly spending patterns by category.",
+    "difficulty": "Easy",
+    "tools": ["Excel"],
+    "businessCategory": "Finance",
+    "link": "",
+    "tags": ["Budgeting", "Sample Project"],
+    "date": "2024-06-20"
+  },
+  {
+    "id": "seed-8",
+    "title": "Healthcare Patient No-Show Prediction (Exploratory)",
+    "description": "Sample project: Exploratory Python analysis (pandas, matplotlib) on appointment data to surface factors correlated with patient no-shows, laying groundwork for a predictive model.",
+    "difficulty": "Hard",
+    "tools": ["Python"],
+    "businessCategory": "Healthcare",
+    "link": "",
+    "tags": ["EDA", "Sample Project"],
+    "date": "2025-04-18"
+  }
+]
