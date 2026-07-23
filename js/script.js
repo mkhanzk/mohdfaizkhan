@@ -202,8 +202,16 @@
   function render() {
     const filtered = allProjects.filter(matchesFilters);
     grid.innerHTML = '';
-    resultsCount.textContent = `${filtered.length} project${filtered.length === 1 ? '' : 's'} shown`;
-    emptyState.hidden = filtered.length !== 0;
+
+    if (allProjects.length === 0) {
+      resultsCount.textContent = '';
+      emptyState.textContent = '🚧 New projects coming soon — check back shortly!';
+      emptyState.hidden = false;
+    } else {
+      resultsCount.textContent = `${filtered.length} project${filtered.length === 1 ? '' : 's'} shown`;
+      emptyState.textContent = 'No projects match these filters yet.';
+      emptyState.hidden = filtered.length !== 0;
+    }
 
     filtered.forEach(p => grid.appendChild(renderCard(p)));
   }
