@@ -49,6 +49,7 @@
         </div>
       </div>
       <div class="hero-card">
+        <img src="assets/profile-photo.jpg" alt="Mohd Faiz Khan" class="profile-photo">
         <div class="stat"><span class="stat-num">4+</span><span class="stat-label">Years Experience</span></div>
         <div class="stat"><span class="stat-num">5</span><span class="stat-label">Core Tools</span></div>
         <div class="stat"><span class="stat-num" id="heroProjectCount">8</span><span class="stat-label">Projects Showcased</span></div>
@@ -149,7 +150,10 @@
           <h2 class="section-title">Projects</h2>
           <p class="section-sub">Filter by difficulty, tool, or business domain. Add your own project any time with the button below.</p>
         </div>
-        <button class="btn btn-primary" id="addProjectBtn">+ Add Project</button>
+        <div class="owner-controls">
+          <button class="btn btn-outline" id="ownerLoginBtn">🔒 Owner Login</button>
+          <button class="btn btn-primary" id="addProjectBtn" hidden>+ Add Project</button>
+        </div>
       </div>
 
       <div class="filters">
@@ -264,6 +268,11 @@
         <input type="url" id="fLink" placeholder="https://github.com/...">
       </label>
       <label>
+        Dashboard Embed Link (optional)
+        <input type="url" id="fEmbed" placeholder="Tableau Public or Power BI 'Publish to web' embed URL">
+      </label>
+      <p class="field-hint">Paste a Tableau Public "Share &gt; Embed" link or a Power BI "Publish to web" link — visitors will be able to open and interact with it right on this page.</p>
+      <label>
         Tags (comma separated, optional)
         <input type="text" id="fTags" placeholder="e.g. Automation, KPI, Forecasting">
       </label>
@@ -273,6 +282,41 @@
         <button type="submit" class="btn btn-primary">Save Project</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- OWNER LOGIN MODAL -->
+<div class="modal-backdrop" id="ownerModalBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ownerModalTitle">
+    <div class="modal-header">
+      <h3 id="ownerModalTitle">Owner Login</h3>
+      <button class="modal-close" id="ownerModalClose" aria-label="Close">&times;</button>
+    </div>
+    <form id="ownerLoginForm" class="project-form">
+      <label>
+        Access Code
+        <input type="password" id="ownerPassword" required placeholder="Enter your owner access code" autocomplete="current-password">
+      </label>
+      <p class="field-hint">This unlocks Add/Remove for this browser tab only. Visitors without the code can only view and filter projects.</p>
+      <p class="form-error" id="ownerFormError" hidden></p>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" id="ownerCancelBtn">Cancel</button>
+        <button type="submit" class="btn btn-primary">Unlock</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- DASHBOARD EMBED MODAL -->
+<div class="modal-backdrop" id="embedModalBackdrop">
+  <div class="modal embed-modal" role="dialog" aria-modal="true" aria-labelledby="embedModalTitle">
+    <div class="modal-header">
+      <h3 id="embedModalTitle">Dashboard</h3>
+      <button class="modal-close" id="embedModalClose" aria-label="Close">&times;</button>
+    </div>
+    <div class="embed-body">
+      <iframe id="embedIframe" title="Embedded dashboard" allowfullscreen></iframe>
+    </div>
   </div>
 </div>
 

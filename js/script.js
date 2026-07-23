@@ -3,10 +3,14 @@
 
   const STORAGE_KEY = 'faiz_portfolio_custom_projects_v1';
   const THEME_KEY = 'faiz_portfolio_theme';
+  const OWNER_SESSION_KEY = 'faiz_owner_authed';
+  // SHA-256 hash of the owner access code. Never store the plain password here.
+  const OWNER_HASH = '4e7ce45771e596315605af08708dce86fe7d4e28b180a291cbb428d60d4ee910';
 
   let seedProjects = [];
   let customProjects = loadCustomProjects();
   let allProjects = [];
+  let isOwner = sessionStorage.getItem(OWNER_SESSION_KEY) === '1';
 
   const state = { difficulty: 'all', tool: 'all', business: 'all', search: '' };
 
@@ -14,6 +18,8 @@
   const resultsCount = document.getElementById('resultsCount');
   const emptyState = document.getElementById('emptyState');
   const heroProjectCount = document.getElementById('heroProjectCount');
+  const addProjectBtn = document.getElementById('addProjectBtn');
+  const ownerLoginBtn = document.getElementById('ownerLoginBtn');
 
   document.getElementById('year').textContent = new Date().getFullYear();
 
@@ -41,6 +47,68 @@
   navToggle.addEventListener('click', () => navLinks.classList.toggle('open'));
   navLinks.querySelectorAll('a').forEach(a => a.addEventListener('click', () => navLinks.classList.remove('open')));
 
+  // ---------- Owner auth ----------
+  async function sha256Hex(text) {
+    const bytes = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest('SHA-256', bytes);
+    return Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+  }
+
+  function updateOwnerUI() {
+    addProjectBtn.hidden = !isOwner;
+    ownerLoginBtn.textContent = isOwner ? '🔓 Log out' : '🔒 Owner Login';
+  }
+  updateOwnerUI();
+
+  ownerLoginBtn.addEventListener('click', () => {
+    if (isOwner) {
+      isOwner = false;
+      sessionStorage.removeItem(OWNER_SESSION_KEY);
+      updateOwnerUI();
+      render();
+      showToast('Logged out');
+    } else {
+      openOwnerModal();
+    }
+  });
+
+  const ownerModalBackdrop = document.getElementById('ownerModalBackdrop');
+  const ownerModalClose = document.getElementById('ownerModalClose');
+  const ownerCancelBtn = document.getElementById('ownerCancelBtn');
+  const ownerLoginForm = document.getElementById('ownerLoginForm');
+  const ownerFormError = document.getElementById('ownerFormError');
+  const ownerPasswordInput = document.getElementById('ownerPassword');
+
+  function openOwnerModal() {
+    ownerModalBackdrop.classList.add('open');
+    ownerFormError.hidden = true;
+    ownerLoginForm.reset();
+    ownerPasswordInput.focus();
+  }
+  function closeOwnerModal() {
+    ownerModalBackdrop.classList.remove('open');
+  }
+  ownerModalClose.addEventListener('click', closeOwnerModal);
+  ownerCancelBtn.addEventListener('click', closeOwnerModal);
+  ownerModalBackdrop.addEventListener('click', (e) => { if (e.target === ownerModalBackdrop) closeOwnerModal(); });
+
+  ownerLoginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const entered = ownerPasswordInput.value;
+    const hash = await sha256Hex(entered);
+    if (hash === OWNER_HASH) {
+      isOwner = true;
+      sessionStorage.setItem(OWNER_SESSION_KEY, '1');
+      updateOwnerUI();
+      closeOwnerModal();
+      render();
+      showToast('Owner mode unlocked');
+    } else {
+      ownerFormError.textContent = 'Incorrect access code.';
+      ownerFormError.hidden = false;
+    }
+  });
+
   // ---------- Data loading ----------
   function loadCustomProjects() {
     try {
@@ -54,7 +122,7 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(customProjects));
   }
 
-  fetch('data/projects.json')
+  fetch('data/projects.json', { cache: 'no-store' })
     .then(r => r.ok ? r.json() : [])
     .catch(() => [])
     .then(data => {
@@ -110,8 +178,6 @@
     return true;
   }
 
-  const DIFFICULTY_ORDER = { Easy: 0, Medium: 1, Hard: 2 };
-
   function render() {
     const filtered = allProjects.filter(matchesFilters);
     grid.innerHTML = '';
@@ -127,6 +193,15 @@
     return div.innerHTML;
   }
 
+  function isSafeUrl(url) {
+    try {
+      const u = new URL(url, window.location.href);
+      return u.protocol === 'http:' || u.protocol === 'https:';
+    } catch (e) {
+      return false;
+    }
+  }
+
   function renderCard(p) {
     const card = document.createElement('article');
     card.className = 'project-card';
@@ -134,6 +209,7 @@
     const toolsHtml = (p.tools || []).map(t => `<span class="tag tag-tool">${escapeHtml(t === 'SQL' ? 'MySQL/SQL' : t)}</span>`).join('');
     const tagsHtml = (p.tags || []).map(t => `<span class="tag">${escapeHtml(t)}</span>`).join('');
     const isCustom = String(p.id || '').startsWith('custom-');
+    const hasEmbed = p.embedLink && isSafeUrl(p.embedLink);
 
     card.innerHTML = `
       <div class="card-top">
@@ -146,51 +222,99 @@
         ${toolsHtml}
       </div>
       ${tagsHtml ? `<div class="card-meta-row">${tagsHtml}</div>` : ''}
+      ${hasEmbed ? `<div><button class="dashboard-btn" type="button">▦ Open Dashboard</button></div>` : ''}
       <div class="card-footer">
-        <span>${p.link ? `<a class="card-link" href="${escapeHtml(p.link)}" target="_blank" rel="noopener">View project ↗</a>` : ''}</span>
-        ${isCustom ? `<span class="delete-wrap">
-            <button class="delete-btn" type="button">Remove</button>
-            <span class="delete-confirm" hidden>
-              Remove? <button class="delete-yes" type="button">Yes</button> <button class="delete-no" type="button">No</button>
-            </span>
-          </span>` : (p.title && (p.title.match(/^(Academic|Automated|Learner)/) ) ? `<span class="card-badge-custom">Real work</span>` : `<span class="card-badge-custom">Sample</span>`)}
+        <span>${p.link && isSafeUrl(p.link) ? `<a class="card-link" href="${escapeHtml(p.link)}" target="_blank" rel="noopener">View project ↗</a>` : ''}</span>
+        ${isCustom && !isOwner ? `<span class="draft-badge">Draft</span>` : ''}
       </div>
+      ${isOwner ? `<div class="card-publish-row"></div>` : ''}
     `;
 
-    if (isCustom) {
-      const delBtn = card.querySelector('.delete-btn');
-      const confirmWrap = card.querySelector('.delete-confirm');
-      const yesBtn = card.querySelector('.delete-yes');
-      const noBtn = card.querySelector('.delete-no');
-
-      delBtn.addEventListener('click', () => {
-        delBtn.hidden = true;
-        confirmWrap.hidden = false;
-      });
-      noBtn.addEventListener('click', () => {
-        confirmWrap.hidden = true;
-        delBtn.hidden = false;
-      });
-      yesBtn.addEventListener('click', () => {
-        customProjects = customProjects.filter(cp => cp.id !== p.id);
-        saveCustomProjects();
-        rebuildProjects();
-        render();
-        showToast('Project removed');
-      });
+    const dashBtn = card.querySelector('.dashboard-btn');
+    if (dashBtn) {
+      dashBtn.addEventListener('click', () => openEmbedModal(p.title, p.embedLink));
     }
+
+    if (isOwner) {
+      const row = card.querySelector('.card-publish-row');
+      if (isCustom) {
+        const draftLabel = document.createElement('span');
+        draftLabel.className = 'draft-badge';
+        draftLabel.textContent = 'Draft — only visible to you';
+        row.appendChild(draftLabel);
+
+        const copyBtn = document.createElement('button');
+        copyBtn.className = 'copy-btn';
+        copyBtn.type = 'button';
+        copyBtn.textContent = '📋 Copy JSON to publish';
+        copyBtn.addEventListener('click', () => {
+          const { id, ...publishable } = p;
+          navigator.clipboard.writeText(JSON.stringify(publishable, null, 2))
+            .then(() => showToast('Copied — paste it in chat to publish live'));
+        });
+        row.appendChild(copyBtn);
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.type = 'button';
+        delBtn.textContent = 'Discard draft';
+        delBtn.addEventListener('click', () => {
+          customProjects = customProjects.filter(cp => cp.id !== p.id);
+          saveCustomProjects();
+          rebuildProjects();
+          render();
+          showToast('Draft discarded');
+        });
+        row.appendChild(delBtn);
+      } else {
+        const liveLabel = document.createElement('span');
+        liveLabel.className = 'card-badge-custom';
+        liveLabel.textContent = 'Live for everyone';
+        row.appendChild(liveLabel);
+
+        const removeReqBtn = document.createElement('button');
+        removeReqBtn.className = 'copy-btn';
+        removeReqBtn.type = 'button';
+        removeReqBtn.textContent = '🗑 Copy removal request';
+        removeReqBtn.addEventListener('click', () => {
+          navigator.clipboard.writeText(`Please remove this project from the live site: "${p.title}"`)
+            .then(() => showToast('Copied — paste it in chat to remove live'));
+        });
+        row.appendChild(removeReqBtn);
+      }
+    }
+
     return card;
   }
 
-  // ---------- Modal ----------
+  // ---------- Embed modal ----------
+  const embedModalBackdrop = document.getElementById('embedModalBackdrop');
+  const embedModalClose = document.getElementById('embedModalClose');
+  const embedModalTitle = document.getElementById('embedModalTitle');
+  const embedIframe = document.getElementById('embedIframe');
+
+  function openEmbedModal(title, url) {
+    if (!isSafeUrl(url)) return;
+    embedModalTitle.textContent = title;
+    embedIframe.src = url;
+    embedModalBackdrop.classList.add('open');
+  }
+  function closeEmbedModal() {
+    embedModalBackdrop.classList.remove('open');
+    embedIframe.src = 'about:blank';
+  }
+  embedModalClose.addEventListener('click', closeEmbedModal);
+  embedModalBackdrop.addEventListener('click', (e) => { if (e.target === embedModalBackdrop) closeEmbedModal(); });
+
+  // ---------- Add Project modal ----------
   const modalBackdrop = document.getElementById('modalBackdrop');
-  const addProjectBtn = document.getElementById('addProjectBtn');
   const modalClose = document.getElementById('modalClose');
   const cancelBtn = document.getElementById('cancelBtn');
   const projectForm = document.getElementById('projectForm');
   const formError = document.getElementById('formError');
 
   function openModal() {
+    if (!isOwner) return;
     modalBackdrop.classList.add('open');
     formError.hidden = true;
     projectForm.reset();
@@ -203,15 +327,20 @@
   modalClose.addEventListener('click', closeModal);
   cancelBtn.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', (e) => { if (e.target === modalBackdrop) closeModal(); });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeModal(); });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') { closeModal(); closeOwnerModal(); closeEmbedModal(); }
+  });
 
   projectForm.addEventListener('submit', (e) => {
     e.preventDefault();
+    if (!isOwner) return;
+
     const title = document.getElementById('fTitle').value.trim();
     const description = document.getElementById('fDescription').value.trim();
     const difficulty = document.getElementById('fDifficulty').value;
     const businessCategory = document.getElementById('fBusiness').value;
     const link = document.getElementById('fLink').value.trim();
+    const embedLink = document.getElementById('fEmbed').value.trim();
     const tags = document.getElementById('fTags').value.split(',').map(t => t.trim()).filter(Boolean);
     const tools = Array.from(document.querySelectorAll('input[name="fTools"]:checked')).map(cb => cb.value);
 
@@ -220,10 +349,20 @@
       formError.hidden = false;
       return;
     }
+    if (link && !isSafeUrl(link)) {
+      formError.textContent = 'Project link must be a valid http(s) URL.';
+      formError.hidden = false;
+      return;
+    }
+    if (embedLink && !isSafeUrl(embedLink)) {
+      formError.textContent = 'Dashboard embed link must be a valid http(s) URL.';
+      formError.hidden = false;
+      return;
+    }
 
     const newProject = {
       id: 'custom-' + Date.now(),
-      title, description, difficulty, businessCategory, tools, link, tags,
+      title, description, difficulty, businessCategory, tools, link, embedLink, tags,
       date: new Date().toISOString().slice(0, 10)
     };
 
@@ -232,7 +371,7 @@
     rebuildProjects();
     render();
     closeModal();
-    showToast('Project added');
+    showToast('Draft added — copy its JSON to publish it live');
   });
 
   // ---------- Toast ----------
@@ -242,6 +381,6 @@
     toast.textContent = msg;
     toast.classList.add('show');
     clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   }
 })();
