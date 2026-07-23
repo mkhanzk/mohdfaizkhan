@@ -174,11 +174,14 @@ a { color: inherit; }
   padding: 20px; box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 8px;
 }
 .cert-card h3 { margin: 0; font-size: 1.02rem; }
+.edu-org { margin: -4px 0 0; color: var(--text-muted); font-size: 0.9rem; }
 .cert-status {
   align-self: flex-start; background: color-mix(in srgb, var(--medium) 16%, transparent); color: var(--medium);
   font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em;
   padding: 4px 10px; border-radius: 999px;
 }
+.cert-status-progress, .cert-status-done { text-transform: none; }
+.cert-status-done { background: color-mix(in srgb, var(--easy) 16%, transparent); color: var(--easy); }
 
 /* Timeline */
 .timeline { margin-top: 28px; display: flex; flex-direction: column; gap: 28px; }
